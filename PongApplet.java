@@ -1,5 +1,3 @@
-
-
 import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -13,20 +11,33 @@ import java.awt.event.KeyListener;
 
 @SuppressWarnings("serial")
 public class PongApplet extends Applet implements Runnable, KeyListener {
-	//Graphics objects for random spirts
+	// screen object variables
+	private int screenHeight=600, screenWidth=800;
+	//Score Keeping
+	private int p1=0;
+	private int p2=0;
+	private int consecutiveBounces=0;
+	private Image[] images = new Image[10];
 	private Image i;
-	private Graphics doubleG; // double buffer graphics
-	//settings for the ball
-	int bX=400,bY=25,dx=4,dy=2,radius=10;
-	private Color ballColor;
+	private Graphics doubleG; 
+	//private String path = "C:\Users\MRD\Documents\workspace\PongApplet\src\Images\";
 	
-	//settings for paddle
+	//settings for the ball
+	int bX=400,bY=25,dx=4,dy=2,radius=4;
+	private Color ballColor;
+	// master padle speed
+	private int pdlSpd=5;
+	//settings for paddle 1
 	int rx=100, ry=300, padelWidth=5, padelHeight=50;
 	private Color PaddleColor;
 	
+	//settings for paddle 2
+	int px=700, py=300;
+	private Color Paddle2Color;
+	
 	// settings for keyboard input
 	private boolean[] keys = new boolean[120];
-	public boolean up,down,left,right;
+	public boolean up,down,up2,down2;
 	
 	
 	public void init() { // called first time you view applet
@@ -45,10 +56,7 @@ public class PongApplet extends Applet implements Runnable, KeyListener {
 		
 		while(true){ // infinite loop always true
 			keyUpdate();//checks key update
-			if(checkHit()){
-				// check if ball is in contact with player
-				Revert();
-			}
+			if(checkHit()){Revert();}// check if ball is in contact with player
 			keyCheck();// checks for user input
 			wallCheck();// checks for wall collision
 
@@ -62,6 +70,11 @@ public class PongApplet extends Applet implements Runnable, KeyListener {
 			}
 		}
 		
+	}
+	public void populateImages(){
+		for(int i=0; i<images.length; i++){
+			images[i]=new image(path+i+".jpg")
+		}
 	}
 	public void stop() {
 		
@@ -91,22 +104,42 @@ public class PongApplet extends Applet implements Runnable, KeyListener {
 	}
 	
 	public void paint(Graphics g) {
+		drawBall(g);
+		drawPaddles(g);
+		drawDivider(g);
+		drawBoard(g);
+	}
+	private void drawBoard(Graphics g) {
+		g.drawRect(300, 10, 200, 100);
+		
+	}
+	private void drawBall(Graphics g) {
 		g.setColor(Color.black);
 		g.fillOval(bX-radius, bY-radius, radius*2, radius*2);
+		
+	}
+	private void drawPaddles(Graphics g) {
 		g.fillRect(rx, ry, padelWidth, padelHeight);
+		g.fillRect(px, py, padelWidth, padelHeight);
+		
+	}
+	private void drawDivider(Graphics g) {
+		g.drawLine(screenWidth/2, 0, screenWidth/2, screenHeight);
 		
 	}
 	public boolean checkHit(){
-		if(bX>rx&&bX<rx+padelWidth){
-			if(bY>ry&&bY<ry+padelHeight){
+		if(bX>rx&&bX<rx+padelWidth||bX>px&&bX<px+padelWidth){
+			if(bY>ry&&bY<ry+padelHeight||bY>py&&bY<py+padelHeight){
 				return true;
 			}
 		}
 		return false;
 	}
 	public void keyCheck() {
-		if(up) ry-=3;
-		if(down)ry+=3;
+		if(up) ry-=pdlSpd;
+		if(down)ry+=pdlSpd;
+		if(up2) py-=pdlSpd;
+		if(down2) py+=pdlSpd;
 	}
 	public void Revert(){
 		dx=-dx;
@@ -144,10 +177,12 @@ public class PongApplet extends Applet implements Runnable, KeyListener {
 	}
 	
 	public void keyUpdate() {//-------------------------------------------update()
-		up = keys[KeyEvent.VK_UP] || keys[KeyEvent.VK_W];
-		down = keys[KeyEvent.VK_DOWN] || keys[KeyEvent.VK_S];
-		left = keys[KeyEvent.VK_LEFT] || keys[KeyEvent.VK_A];
-		right = keys[KeyEvent.VK_RIGHT] || keys[KeyEvent.VK_D];
+		up =  keys[KeyEvent.VK_W];
+		up2 = keys[KeyEvent.VK_UP]; 
+		down = keys[KeyEvent.VK_S];
+		down2 = keys[KeyEvent.VK_DOWN];
+//		left = keys[KeyEvent.VK_LEFT] || keys[KeyEvent.VK_A];
+//		right = keys[KeyEvent.VK_RIGHT] || keys[KeyEvent.VK_D];
 		
 		for(int i=0; i<keys.length; i++) {
 			if (keys[i]) {
