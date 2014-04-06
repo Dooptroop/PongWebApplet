@@ -2,10 +2,10 @@ import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
-
-
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+
+import javax.swing.ImageIcon;
 
 
 
@@ -17,10 +17,11 @@ public class PongApplet extends Applet implements Runnable, KeyListener {
 	private int p1=0;
 	private int p2=0;
 	private int consecutiveBounces=0;
-	private Image[] images = new Image[10];
+	private ImageIcon[] images = new ImageIcon[10];
+	private Image[] img = new Image[10];
 	private Image i;
 	private Graphics doubleG; 
-	//private String path = "C:\Users\MRD\Documents\workspace\PongApplet\src\Images\";
+	private String path = "/Users/michaeldupree/GoogleDrive/code/EclipseWorkplace/PongApplet/src/images/";
 	
 	//settings for the ball
 	int bX=400,bY=25,dx=4,dy=2,radius=4;
@@ -40,12 +41,15 @@ public class PongApplet extends Applet implements Runnable, KeyListener {
 	public boolean up,down,up2,down2;
 	
 	
+	
+	
 	public void init() { // called first time you view applet
 		setSize(800, 600);
 	}
 	public void start() {
 		Thread thread = new Thread(this);
 		thread.start();//start the thread
+		populateImages();
 		addKeyListener(this);
 	
 		// use this run method for the thread
@@ -72,8 +76,11 @@ public class PongApplet extends Applet implements Runnable, KeyListener {
 		
 	}
 	public void populateImages(){
-		for(int i=0; i<images.length; i++){
-			images[i]=new image(path+i+".jpg")
+		for(int i=1; i<images.length; i++){
+			images[i]= new ImageIcon(path+i+".jpg");
+		}
+		for(int i=1; i<images.length; i++){
+			img[i]=images[i].getImage();
 		}
 	}
 	public void stop() {
@@ -111,7 +118,8 @@ public class PongApplet extends Applet implements Runnable, KeyListener {
 	}
 	private void drawBoard(Graphics g) {
 		g.drawRect(300, 10, 200, 100);
-		
+		if(p1>0){g.drawImage(img[p1], 315, 20, 75, 75, this);}
+		if(p2>0){g.drawImage(img[p2], 410, 20, 75, 75, this);}
 	}
 	private void drawBall(Graphics g) {
 		g.setColor(Color.black);
@@ -153,10 +161,12 @@ public class PongApplet extends Applet implements Runnable, KeyListener {
 		if(bX+dx>this.getWidth() -radius-1){
 			bX = this.getWidth() - radius - 1;// ball will stop at border
 			dx = -dx;// makes it bounce off the wall -RIGHTWall-
-			// will need to count wall taps for pong score
+			p1++;// increment player ones score
+			
 		} else if(bX+dx<0+radius) {// this if makes the ball bounce off the left
 			bX = 0+radius;
 			dx = -dx;// revert path
+			p2++;
 		}
 		else {
 			bX+=dx;
@@ -167,9 +177,11 @@ public class PongApplet extends Applet implements Runnable, KeyListener {
 			bY = this.getHeight() - radius - 1;// ball will stop at border
 			dy = -dy;// makes it bounce off the wall -LeftWall-
 			
+			
 		} else if(bY+dy<0+radius) {// this if makes the ball bounce off the left
 			bY = 0+radius;
 			dy = -dy;// revert path Y
+			
 		}
 		else {
 			bY+=dy;
